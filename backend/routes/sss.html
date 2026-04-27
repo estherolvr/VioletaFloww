@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Dashboard Inteligente - Analytics & Gestão</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #f0f2f8;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        /* ========== LAYOUT GLOBAL ========== */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR (navegação simulada) */
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(145deg, #0f172a 0%, #0a0f1e 100%);
+            color: #e2e8f0;
+            padding: 1.8rem 1rem;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.08);
+            transition: all 0.2s;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2.5rem;
+            font-weight: 700;
+            font-size: 1.4rem;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 1rem;
+        }
+
+        .logo-area span {
+            background: #3b82f6;
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .nav-item {
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 0;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item.active, .nav-item:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 1.8rem 2rem;
+        }
+
+        /* top bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 28px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* filtros globais */
+        .filters-bar {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 24px;
+            margin-bottom: 1.8rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .filter-group select, .filter-group input {
+            border: none;
+            background: transparent;
+            padding: 0.4rem 0;
+            font-weight: 500;
+            outline: none;
+        }
+
+        /* Cards KPI */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-kpi {
+            background: white;
+            border-radius: 28px;
+            padding: 1.2rem 1.2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+            transition: 0.2s;
+            border: 1px solid #eef2ff;
+            cursor: pointer;
+        }
+
+        .card-kpi:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+        }
+
+        .kpi-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5b6e8c;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+        }
+
+        .kpi-delta {
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+
+        /* gráficos e dashboards duplos */
+        .row-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-panel {
+            background: white;
+            border-radius: 28px;
+            padding: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            border: 1px solid #edf2f7;
+        }
+
+        .chart-title {
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+        }
+
+        .bar-chart-sim {
+            display: flex;
+            gap: 2rem;
+            justify-content: space-around;
+            margin: 1rem 0;
+        }
+
+        .bar-item {
+            text-align: center;
+        }
+
+        .bar {
+            width: 60px;
+            background: #3b82f6;
+            border-radius: 12px;
+            height: calc(70% + 20px);
+            transition: 0.2s;
+        }
+
+        .insight-alert {
+            background: #fff9e6;
+            border-left: 6px solid #f59e0b;
+            padding: 1rem;
+            border-radius: 20px;
+            margin: 1rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .btn-sm {
+            background: #eef2ff;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+
+        .export-btn {
+            background: #1e293b;
+            color: white;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 780px) {
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; padding: 1rem; }
+        }
+        .modal-dummy {
+            background: rgba(0,0,0,0.5);
+            position: fixed;
+            top:0;left:0;
+            width:100%;height:100%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-card {
+            background: white;
+            border-radius: 32px;
+            max-width: 550px;
+            width: 90%;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="logo-area"><span>📊</span> FoodMetrics</div>
+        <div class="nav-item active">📈 Dashboard Geral</div>
+        <div class="nav-item">📢 Campanhas + Sugestões</div>
+        <div class="nav-item">👥 Segmentação / RFM</div>
+        <div class="nav-item">💰 Financeiro & Métricas</div>
+        <div class="nav-item">⚙️ Admin / Usuários</div>
+        <div class="nav-item" style="margin-top: 2rem;">🔐 Login / Recuperar senha</div>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <div><strong>Dashboard Inteligente</strong> | Inferência + Insights</div>
+            <div class="user-info">
+                <span>👋 Olá, Gestor</span>
+                <div class="avatar">AD</div>
+            </div>
+        </div>
+
+        <!-- Filtros Globais (mock) -->
+        <div class="filters-bar">
+            <div class="filter-group">📅 Período: <select id="periodSelect"><option>Últimos 30 dias</option><option>Últimos 7 dias</option><option>Mês anterior</option></select></div>
+            <div class="filter-group">🏢 Unidade: <select><option>Todas unidades</option><option>Centro</option><option>Zona Sul</option></select></div>
+            <div class="filter-group">📱 Canal: <select><option>Todos</option><option>Delivery próprio</option><option>Balcão</option></select></div>
+            <div class="filter-group">🎯 Campanha: <select><option>Todas</option><option>Black Friday</option><option>Cashback 10%</option></select></div>
+            <button class="btn-sm" id="refreshMock">🔄 Atualizar Dados</button>
+        </div>
+
+        <!-- KPIs com drill-down (clique) -->
+        <div class="kpi-grid">
+            <div class="card-kpi" data-kpi="pedidos">
+                <div class="kpi-title">📦 PEDIDOS (últimos 30d)</div>
+                <div class="kpi-value" id="kpiPedidos">2.845</div>
+                <div class="kpi-delta"><span class="positive">▲ +12,3%</span> vs período anterior</div>
+            </div>
+            <div class="card-kpi" data-kpi="receita">
+                <div class="kpi-title">💰 RECEITA BRUTA</div>
+                <div class="kpi-value" id="kpiReceita">R$ 287.500</div>
+                <div class="kpi-delta"><span class="positive">▲ +8,7%</span> ticket médio ↑</div>
+            </div>
+            <div class="card-kpi" data-kpi="ticket">
+                <div class="kpi-title">🎫 TICKET MÉDIO</div>
+                <div class="kpi-value" id="kpiTicket">R$ 101,20</div>
+                <div class="kpi-delta"><span class="negative">▼ -2,1%</span> atenção</div>
+            </div>
+            <div class="card-kpi" data-kpi="clientes">
+                <div class="kpi-title">👥 CLIENTES ATIVOS</div>
+                <div class="kpi-value" id="kpiClientes">1.234</div>
+                <div class="kpi-delta"><span class="positive">▲ +5,4%</span> recorrência 34%</div>
+            </div>
+            <div class="card-kpi" data-kpi="conversao_vendas">
+                <div class="kpi-title">📈 CONV. (vendas/empresa)</div>
+                <div class="kpi-value" id="kpiConvVendas">22,5%</div>
+                <div class="kpi-delta"><span class="positive">▲ +3,1 pp</span> campanha ativa</div>
+            </div>
+            <div class="card-kpi" data-kpi="conversao_valor">
+                <div class="kpi-title">💰 CONV. VALOR/EMPRESA</div>
+                <div class="kpi-value" id="kpiConvValor">R$ 64,50k</div>
+                <div class="kpi-delta">IC 95% [62,1k - 66,9k]</div>
+            </div>
+        </div>
+
+        <!-- Linha de indicadores adicionais: mensagens por campanha / faturamento estab -->
+        <div class="row-cards">
+            <div class="chart-panel">
+                <div class="chart-title">📨 Mensagens por Campanha / Empresa</div>
+                <div id="mensagensCampanha">📱 Campanha "Cashback" → 4.230 msgs | "Inverno" → 1.870 msgs</div>
+                <div class="bar-chart-sim">
+                    <div><div style="height:80px; width:45px; background:#3b82f6; border-radius:12px;"></div><span>Cashback</span><div>4.2k</div></div>
+                    <div><div style="height:48px; width:45px; background:#3b82f6; border-radius:12px;"></div><span>Inverno</span><div>1.8k</div></div>
+                    <div><div style="height:28px; width:45px; background:#f59e0b; border-radius:12px;"></div><span>Aniversário</span><div>920</div></div>
+                </div>
+                <div><strong>💰 Faturamento Estabelecimento (empresa X):</strong> R$ 312.450 (+9% vs mês passado)</div>
+            </div>
+            <div class="chart-panel">
+                <div class="chart-title">⏱️ Série Temporal (Atual vs Anterior)</div>
+                <div style="display:flex; gap:1rem; justify-content:space-between;">
+                    <div><strong>Atual:</strong> 287,5k <span class="positive">↑8%</span></div>
+                    <div><strong>Anterior:</strong> 264k</div>
+                </div>
+                <div style="background:#eef2ff; border-radius:20px; margin:1rem 0; height: 10px;"><div style="width:72%; background:#3b82f6; height:10px; border-radius:20px;"></div></div>
+                <div class="insight-alert">📊 Variação: Receita +8,7% vs período anterior. Ticket médio em queda (-2,1%) gere alerta!</div>
+            </div>
+        </div>
+
+        <!-- Dashboard de Campanhas e Sugestão + Teste A/B inferencial -->
+        <div class="row-cards">
+            <div class="chart-panel">
+                <div class="chart-title">📢 Dashboard Campanhas | Conversão & ROI</div>
+                <table>
+                    <thead><tr><th>Campanha</th><th>Taxa Conv (vendas)</th><th>Uso Cupons</th><th>ROI Simulado</th></tr></thead>
+                    <tbody>
+                        <tr><td>Cashback 10%</td><td>26,4%</td><td>1.230</td><td>312%</td></tr>
+                        <tr><td>Black Friday</td><td>32,1%</td><td>2.100</td><td>455%</td></tr>
+                        <tr><td>Frete Grátis</td><td>18,2%</td><td>850</td><td>187%</td></tr>
+                    </tbody>
+                </table>
+                <div class="insight-alert"><strong>🧪 Teste A/B (simulado):</strong> Campanha A (Cashback) vs B (Frete Grátis). IC 95% para diferença de conversão: [4,2% ; 11,8%] → Campanha A superior.</div>
+                <button class="btn-sm" id="showRecomendBtn">✨ Ver Recomendações com Insight</button>
+            </div>
+            <div class="chart-panel">
+                <div class="chart-title">💡 Sugestão de Campanha Baseada em Dados</div>
+                <div id="sugestaoArea">🔍 Análise RFM: clientes com alta recência e baixo valor → campanha "Reativação com 15% off" pode elevar recompra. IC 95% recompra entre 31% e 38%.</div>
+                <button class="btn-sm" id="gerarInsightBtn">Gerar nova inferência (coorte)</button>
+                <div style="margin-top: 1rem;"><strong>⚠️ Alerta automático:</strong> Queda de recorrência (clientes ativos semanais -5%) acima do limiar configurado.</div>
+            </div>
+        </div>
+
+        <!-- Painel financeiro básico e módulo de apoio -->
+        <div class="row-cards">
+            <div class="chart-panel">
+                <div class="chart-title">💰 Financeiro Simulado | Margem & Caixa</div>
+                <div>Receita Líquida: R$ 271.200 | Custos Variáveis: -R$ 98.500 (36%)</div>
+                <div>Margem Bruta: R$ 172.700 → 🟢 63,7%</div>
+                <div>Indicador de Caixa (D+30 projetado): R$ 104k | 🔄 Conversão de fluxo: 1,24x</div>
+            </div>
+            <div class="chart-panel">
+                <div class="chart-title">📋 Tabela Drill-down: Top Produtos / Campanhas</div>
+                <table id="drillTable">
+                    <tr><th>Top Produtos</th><th>Vendas</th><th>Receita</th></tr>
+                    <tr><td>Pizza Margherita</td><td>842</td><td>R$ 33.680</td></tr>
+                    <tr><td>Hambúrguer Duplo</td><td>756</td><td>R$ 28.728</td></tr>
+                    <tr><td>Batata Especial</td><td>520</td><td>R$ 8.320</td></tr>
+                </table>
+                <button class="btn-sm export-btn" id="exportCSVBtn">📎 Exportar CSV (simulado)</button>
+            </div>
+        </div>
+
+        <!-- Módulo de administração / log de auditoria simplificado -->
+        <div class="chart-panel">
+            <div class="chart-title">⚙️ Admin & Configurações (CRUD/Usuários + Logs)</div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn-sm" id="mockUserCrud">👥 Gestão de Usuários (CRUD mock)</button>
+                <button class="btn-sm">🎯 Metas KPI (configurar)</button>
+                <button class="btn-sm">📜 Log de auditoria: login/importações</button>
+            </div>
+            <div style="margin-top:10px; font-size:0.8rem;">✅ Última importação CSV: 15/03/2025 - 2.340 linhas processadas, 12 rejeitadas (campos faltantes). Qualidade do dado: 99,5%</div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal para detalhamento do KPI (drill-down) -->
+<div id="drillModal" class="modal-dummy">
+    <div class="modal-card">
+        <h3>Detalhamento KPI</h3>
+        <div id="modalContent">Carregando...</div>
+        <button style="margin-top:1rem;" class="btn-sm" onclick="closeModal()">Fechar</button>
+    </div>
+</div>
+
+<script>
+    // mock data state full (simula polling + atualização via botão Refresh)
+    let dashboardData = {
+        pedidos: 2845,
+        receita: 287500,
+        ticketMedio: 101.20,
+        clientesAtivos: 1234,
+        conversaoVendas: 22.5,
+        conversaoValor: 64.5, // em milhares
+        mensagens: { Cashback: 4230, Inverno: 1870, Aniversario: 920 },
+        faturamentoEmpresa: 312450
+    };
+
+    function updateUI() {
+        document.getElementById('kpiPedidos').innerText = dashboardData.pedidos.toLocaleString();
+        document.getElementById('kpiReceita').innerText = `R$ ${dashboardData.receita.toLocaleString()}`;
+        document.getElementById('kpiTicket').innerText = `R$ ${dashboardData.ticketMedio.toFixed(2)}`;
+        document.getElementById('kpiClientes').innerText = dashboardData.clientesAtivos.toLocaleString();
+        document.getElementById('kpiConvVendas').innerText = `${dashboardData.conversaoVendas}%`;
+        document.getElementById('kpiConvValor').innerText = `R$ ${dashboardData.conversaoValor}k`;
+        document.getElementById('mensagensCampanha').innerHTML = `📱 Campanha "Cashback" → ${dashboardData.mensagens.Cashback} msgs | "Inverno" → ${dashboardData.mensagens.Inverno} msgs`;
+        const fatElement = document.querySelector('.chart-panel div strong');
+        if(fatElement && fatElement.innerText.includes('Faturamento Estabelecimento')) {
+            document.querySelectorAll('.chart-panel').forEach(panel => {
+                if(panel.innerText.includes('Faturamento Estabelecimento')) {
+                    panel.innerHTML = panel.innerHTML.replace(/R\$\s[\d\.]+/g, `R$ ${dashboardData.faturamentoEmpresa.toLocaleString()}`);
+                }
+            });
+        } else {
+            const spanDiv = document.querySelector('.chart-panel div:contains("Faturamento")');
+        }
+        // força atualização faturamento manual
+        let fatDiv = Array.from(document.querySelectorAll('.chart-panel')).find(el => el.innerText.includes('Faturamento Estabelecimento'));
+        if(fatDiv) {
+            let original = fatDiv.innerHTML;
+            fatDiv.innerHTML = original.replace(/R\$\s[\d\.\,]+/g, `R$ ${dashboardData.faturamentoEmpresa.toLocaleString()}`) + '<div style="display:none"></div>';
+            if(!fatDiv.innerHTML.includes('Faturamento Estabelecimento')) fatDiv.innerHTML = `<div><strong>💰 Faturamento Estabelecimento (empresa X):</strong> R$ ${dashboardData.faturamentoEmpresa.toLocaleString()} (+9% vs mês passado)</div>` + fatDiv.innerHTML;
+        }
+    }
+
+    // polling automático simula atualização a cada 45s (pequena variação mock)
+    let intervalPolling;
+    function startPolling() {
+        if(intervalPolling) clearInterval(intervalPolling);
+        intervalPolling = setInterval(() => {
+            dashboardData.pedidos += Math.floor(Math.random() * 20) - 5;
+            dashboardData.receita += Math.floor(Math.random() * 1500) - 300;
+            dashboardData.ticketMedio = +(dashboardData.receita / dashboardData.pedidos).toFixed(2);
+            dashboardData.clientesAtivos += Math.floor(Math.random() * 10) - 2;
+            dashboardData.conversaoVendas = +(dashboardData.conversaoVendas + (Math.random() - 0.5) * 0.6).toFixed(1);
+            dashboardData.conversaoValor = +(dashboardData.conversaoValor + (Math.random() - 0.5) * 0.8).toFixed(1);
+            dashboardData.mensagens.Cashback += Math.floor(Math.random() * 30);
+            dashboardData.faturamentoEmpresa += Math.floor(Math.random() * 2000) - 500;
+            if(dashboardData.pedidos < 1000) dashboardData.pedidos = 1800;
+            if(dashboardData.receita < 100000) dashboardData.receita = 250000;
+            updateUI();
+        }, 45000);
+    }
+
+    document.getElementById('refreshMock').addEventListener('click', () => {
+        dashboardData.pedidos += 48;
+        dashboardData.receita += 6500;
+        dashboardData.ticketMedio = +(dashboardData.receita / dashboardData.pedidos).toFixed(2);
+        dashboardData.clientesAtivos += 27;
+        dashboardData.conversaoVendas = 23.8;
+        dashboardData.conversaoValor = 66.2;
+        dashboardData.mensagens.Cashback += 180;
+        dashboardData.faturamentoEmpresa += 8800;
+        updateUI();
+        alert("✅ Dados atualizados via polling manual (simulação de importação CSV/API). Qualidade: 99,2% linhas válidas.");
+    });
+
+    // drill-down de KPIs (clique nos cards)
+    const cards = document.querySelectorAll('.card-kpi');
+    const modal = document.getElementById('drillModal');
+    const modalContent = document.getElementById('modalContent');
+    window.closeModal = () => { modal.style.display = 'none'; };
+    cards.forEach(card => {
+        card.addEventListener('click', () => {
+            let kpiType = card.getAttribute('data-kpi');
+            let html = '';
+            if(kpiType === 'pedidos') html = '<h4>Top 3 produtos mais pedidos</h4><ul><li>Pizza Margherita - 842 und</li><li>Hambúrguer Duplo - 756 und</li><li>Batata frita - 520 und</li></ul><button class="btn-sm" onclick="alert(\'Exportação CSV simulada: pedidos.csv\')">Exportar CSV</button>';
+            else if(kpiType === 'receita') html = '<h4>Top campanhas por receita</h4><ul><li>Black Friday: R$ 98.200</li><li>Cashback: R$ 72.450</li><li>Frete Grátis: R$ 41.300</li></ul><button class="btn-sm" onclick="alert(\'PDF simulado - Receita\')">Exportar PDF</button>';
+            else if(kpiType === 'clientes') html = '<h4>Clientes Ativos: Novos vs Recorrentes</h4><ul><li>Novos: 534 (43%)</li><li>Recorrentes: 700 (57%)</li><li>RFM: top 20% clientes geram 54% receita</li></ul>';
+            else html = '<p>Detalhamento avançado: Intervalo de confiança para recompra (IC 95%: 28% - 36%) e análise de coorte de retenção.</p><button class="btn-sm" onclick="alert(\'CSV coorte exportado\')">Exportar CSV coorte</button>';
+            modalContent.innerHTML = html;
+            modal.style.display = 'flex';
+        });
+    });
+    modal.addEventListener('click', (e) => { if(e.target === modal) modal.style.display = 'none'; });
+
+    // Export CSV simulado
+    document.getElementById('exportCSVBtn').addEventListener('click', () => {
+        alert("📁 Exportação CSV simulada: dados da tabela drill-down seriam exportados (produtos, campanhas, clientes).");
+    });
+    // Recomendação e insights
+    document.getElementById('showRecomendBtn').addEventListener('click', () => {
+        alert("📈 Recomendação: campanha 'Cashback' tem maior conversão (IC 95% 23,5%-29,2%). Sugere-se aumentar investimento em mídia. Campanha B tem ROI inferior.");
+    });
+    document.getElementById('gerarInsightBtn').addEventListener('click', () => {
+        document.getElementById('sugestaoArea').innerHTML = "🔍 Inferência atualizada: Taxa de recompra estimada 33% com IC 95% [29% - 37%]. Coorte de clientes com 2+ compras: retenção mês-3 = 42%. Sugestão: campanha de cross-selling para clientes com ticket médio > R$150.";
+    });
+    document.getElementById('mockUserCrud').addEventListener('click', () => {
+        alert("👥 CRUD de Usuários (simulação): Listagem: admin@email.com, gerente@email.com. Permissões: Admin (total), Analista (leitura). \nLog de auditoria: 12/03 login admin, importação CSV em 14/03.");
+    });
+
+    // função adicional: simular recuperação de senha (requisito)
+    const loginSidebar = document.querySelector('.nav-item:last-child');
+    if(loginSidebar) loginSidebar.addEventListener('click', () => { alert("🔐 Tela de Login / Recuperação de senha: enviamos link para o e-mail cadastrado."); });
+
+    startPolling();
+    updateUI();
+
+    // mock de validação de tipo de dados e camada analítica (conceito)
+    console.log("Dashboard com inferência + coortes + KPI responsivo, camada analítica simulada.");
+</script>
+</body>
+</html>
